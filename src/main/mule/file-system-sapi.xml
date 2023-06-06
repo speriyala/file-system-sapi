@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:compression="http://www.mulesoft.org/schema/mule/compression"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/compression http://www.mulesoft.org/schema/mule/compression/current/mule-compression.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="file-system-sapiFlow" doc:id="6a9660fb-a907-40d6-8f4e-df85053c7876" >
+		<http:listener doc:name="Listener" doc:id="8cc92437-02ef-41c6-bae5-eb143b103ee5" path="/file" allowedMethods="GET" config-ref="HTTP_Listener_config"/>
+		<logger level="INFO" doc:name="Logger" doc:id="b9163bcc-4c4f-4957-957a-fd23981e3572" message="begin"/>
+		<http:request method="GET" doc:name="Request" doc:id="278d6891-1bbc-46ab-b48a-51f45efa8f7c" path="/wp/wp-content/uploads/2017/07/100000-Sales-Records.zip" config-ref="HTTP_Request_configuration"/>
+		<compression:extract doc:name="Extract" doc:id="7d94feaa-90c6-44ed-b9d8-c310ab5e46e8" >
+			<compression:extractor >
+				<compression:zip-extractor />
+			</compression:extractor>
+		</compression:extract>
+		<logger level="INFO" doc:name="Logger" doc:id="41843107-495e-4357-b797-747fc39dee98" message="#[payload[0]]"/>
+		<ee:transform doc:name="Transform Message" doc:id="04b733f1-f545-4e84-b22b-ab8966754b9d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"pay": payload[0]
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f26fd182-0ac4-46ea-9b8d-ddfe6362c332" message="#[payload]"/>
+	</flow>
+</mule>
